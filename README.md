@@ -26,8 +26,8 @@ ujkids is an **interactive Python learning library** for kids, featuring **games
 
 3. **Or Import in Python**  
    ```python
-   from ujkids.theory import basics
-   basics.run_basics()
+   import ujkids.ui
+   ujkids.ui.main()
    ```
 
 ---
