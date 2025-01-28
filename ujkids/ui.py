@@ -1,13 +1,15 @@
 """
 UJKids - Interactive UI 🎨
-This module provides a GUI interface for UJKids using Streamlit with an interactive Next/Back navigation system.
+This module provides a GUI interface for UJKids using IPython Widgets (ipywidgets) with an interactive Next/Back navigation system.
 """
 
-import streamlit as st
+import ipywidgets as widgets
+from IPython.display import display, clear_output
 from ujkids.theory import basics, control_flow, functions, data_structures, oops, file_handling, error_handling, modules, algorithms, projects
 
 # List of lessons in sequential order
 LESSONS = [
+    ("🏠 Home", None),
     ("📖 Basics of Python", basics.run_basics),
     ("🔁 Control Flow (If-Else, Loops)", control_flow.run_control_flow),
     ("🛠️ Functions", functions.run_functions),
@@ -20,61 +22,50 @@ LESSONS = [
     ("🎮 Mini Projects", projects.run_projects),
 ]
 
+# Initialize lesson index
+total_lessons = len(LESSONS)
+lesson_index = 0
+
+# Output widget to update lesson content
+output = widgets.Output()
+
+def update_ui():
+    """ Update the UI based on the current lesson index. """
+    with output:
+        clear_output(wait=True)
+        lesson_title, lesson_function = LESSONS[lesson_index]
+
+        if lesson_function is None:
+            print("\n### Welcome to UJKids! 🚀\n")
+            print("An interactive way for kids to learn Python with fun animations and projects!")
+        else:
+            print(f"\n### {lesson_title} 🎓\n")
+            lesson_function()
+
+# Navigation buttons
+def next_lesson(_):
+    global lesson_index
+    if lesson_index < total_lessons - 1:
+        lesson_index += 1
+        update_ui()
+
+def previous_lesson(_):
+    global lesson_index
+    if lesson_index > 0:
+        lesson_index -= 1
+        update_ui()
+
+# Create Next/Back buttons
+back_button = widgets.Button(description="⬅ Back")
+next_button = widgets.Button(description="Next ➡")
+back_button.on_click(previous_lesson)
+next_button.on_click(next_lesson)
+
+# Display UI
 def main():
-    """
-    🎨 UJKids Main Interface with Interactive Navigation.
-    """
-    st.set_page_config(page_title="UJKids - Learn Python with Fun!", layout="wide")
+    display(widgets.HBox([back_button, next_button]))
+    display(output)
+    update_ui()
 
-    st.title("🧒 UJKids - Learn Python with Fun!")
-    st.sidebar.header("📚 Navigation")
-    
-    # Add some motivation
-    st.sidebar.markdown("✨ _Coding is like magic! Keep learning and creating!_ ✨")
-    
-    # Initialize session state for lesson index
-    if "lesson_index" not in st.session_state:
-        st.session_state.lesson_index = 0
-
-    # Get current lesson and function
-    lesson_title, lesson_function = LESSONS[st.session_state.lesson_index]
-
-    # Display current lesson title with animation
-    st.markdown(f"## {lesson_title} 🎓")
-    st.markdown("---")
-
-    # Run the current lesson function
-    lesson_function()
-    
-    # Fun progress bar
-    progress = (st.session_state.lesson_index + 1) / len(LESSONS)
-    st.progress(progress)
-    
-    # Navigation Buttons with styling
-    col1, col2, col3 = st.columns([1, 2, 1])
-    
-    with col1:
-        if st.button("⬅ Back", disabled=st.session_state.lesson_index == 0):
-            st.session_state.lesson_index -= 1
-            st.experimental_rerun()
-
-    with col3:
-        if st.button("Next ➡", disabled=st.session_state.lesson_index == len(LESSONS) - 1):
-            st.session_state.lesson_index += 1
-            st.experimental_rerun()
-
-    # Encouraging Message
-    st.markdown("---")
-    if st.session_state.lesson_index == len(LESSONS) - 1:
-        st.markdown("### 🎉 Congratulations! You've completed all lessons! 🎉")
-        st.markdown("_Ready to build your own projects? Keep coding and have fun!_")
-    else:
-        st.markdown("✨ Keep going! You're doing great! ✨")
-    
-    # Footer
-    st.markdown("---")
-    st.markdown("👨‍💻 Developed by UJKids | 🚀 Learning made fun!")
-
-# Run the Streamlit App
-if __name__ == "__main__":
-    main()
+# Run the UI in Jupyter Notebook
+main()
